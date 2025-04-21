@@ -29,7 +29,8 @@ async function showMainMenu() {
 		console.log(chalk.green('Snapshot created!'));
 
 	} else if (operation === 'Init History') {
-		console.log(chalk.green('History NOT initialized!'));
+		initHistory();
+		console.log(chalk.green('History initialized!'));
 	}
 
 	// console.log(chalk.yellow('\nAlgorithm:'), algorithm);
@@ -172,7 +173,28 @@ function snapshot() {
 			JSON.stringify(treeJson, null, 2)
 		);
 
+		// Add and commit changes to git repository
+		process.chdir('folder_history');
+		execSync('git add .', { stdio: 'inherit' });
+		execSync(`git commit -m "Snapshot created ${timestamp}"`, { stdio: 'inherit' });
+		process.chdir('..');
+
 	} catch (error) {
 		console.error(chalk.red('Error creating snapshot:'), error.message);
+	}
+}
+
+function initHistory() {
+	try {
+		// Check if folder_history directory exists
+		if (!fs.existsSync('folder_history')) {
+			fs.mkdirSync('folder_history');
+		}
+
+		// Initialize git repository in folder_history directory
+		execSync('git init folder_history', { stdio: 'inherit' });
+		console.log(chalk.green('Git repository initialized in folder_history!'));
+	} catch (error) {
+		console.error(chalk.red('Error initializing history:'), error.message);
 	}
 }
