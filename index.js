@@ -59,9 +59,12 @@ function snapshot() {
 		const timestamp = new Date().toISOString().replace(/[:]/g, '-');
 		const header = `Snapshot created at: ${timestamp}\n${'='.repeat(50)}\n\n`;
 
-		// Create folder_history if it doesn't exist
+		// Create folder_history and snapshots if they don't exist
 		if (!fs.existsSync('folder_history')) {
 			fs.mkdirSync('folder_history');
+		}
+		if (!fs.existsSync('folder_history/snapshots')) {
+			fs.mkdirSync('folder_history/snapshots');
 		}
 
 		function buildTreeJson(dir) {
@@ -153,12 +156,12 @@ function snapshot() {
 		console.log(chalk.blue('Writing files...'));
 		// Write files in folder_history directory
 		fs.writeFileSync(
-			`folder_history/tree_snapshot_${timestamp}.txt`,
+			`folder_history/snapshots/tree_snapshot_${timestamp}.txt`,
 			header + treeContent.join('\n')
 		);
 
 		fs.writeFileSync(
-			`folder_history/tree_snapshot_${timestamp}.json`,
+			`folder_history/snapshots/tree_snapshot_${timestamp}.json`,
 			JSON.stringify(treeJson, null, 2)
 		);
 
