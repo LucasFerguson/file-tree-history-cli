@@ -7,6 +7,8 @@
 - **Execution:**
   - Run the program: `node index.js`
   - Follow prompts to select operation
+  - or run `npm link` to link the package globally and use it from anywhere in the terminal.
+  - run `historytree` to start
 
 **2. Directory Structure**
 - `.gitignore`: Specifies files to ignore in version control.
@@ -19,3 +21,18 @@
 **Snapshot Current Directory**
 
 **Init History**
+
+**4. Road Map**
+- Add more features like:
+  - Customizable history depth
+  - Add option to not commit the changes to git
+  - CLI flags to control behavior 
+    - `--no-git` to skip git commit
+    - `--depth` to specify history depth
+    - `--format` to specify export format (e.g., JSON, XML)
+    - `--output` to specify output file name
+    - `--help` for usage instructions
+    - `--version` to check the version of the tool
+    - `--verbose` for detailed output
+  - Support for more export file formats (ex: XML)
+  - Improved error handling and user feedback
