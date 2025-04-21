@@ -1,0 +1,192 @@
+{
+  "name": ".",
+  "type": "dir",
+  "size": 31819,
+  "children": [
+    {
+      "name": ".git",
+      "type": "dir",
+      "size": 0,
+      "children": [
+        {
+          "name": "Directory skipped",
+          "type": "file",
+          "size": 0
+        }
+      ]
+    },
+    {
+      "name": ".gitignore",
+      "type": "file",
+      "size": 39
+    },
+    {
+      "name": "folder_history",
+      "type": "dir",
+      "size": 0,
+      "children": [
+        {
+          "name": "Directory skipped",
+          "type": "file",
+          "size": 0
+        }
+      ]
+    },
+    {
+      "name": "index.js",
+      "type": "file",
+      "size": 5902
+    },
+    {
+      "name": "node_modules",
+      "type": "dir",
+      "size": 0,
+      "children": [
+        {
+          "name": "Directory skipped",
+          "type": "file",
+          "size": 0
+        }
+      ]
+    },
+    {
+      "name": "package-lock.json",
+      "type": "file",
+      "size": 20553
+    },
+    {
+      "name": "package.json",
+      "type": "file",
+      "size": 427
+    },
+    {
+      "name": "README.md",
+      "type": "file",
+      "size": 502
+    },
+    {
+      "name": "test-tree",
+      "type": "dir",
+      "size": 4396,
+      "children": [
+        {
+          "name": ".git",
+          "type": "dir",
+          "size": 0,
+          "children": [
+            {
+              "name": "Directory skipped",
+              "type": "file",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "folder4",
+          "type": "dir",
+          "size": 30,
+          "children": [
+            {
+              "name": "folder5",
+              "type": "dir",
+              "size": 25,
+              "children": [
+                {
+                  "name": "hello copy 2.txt",
+                  "type": "file",
+                  "size": 5
+                },
+                {
+                  "name": "hello copy 3.txt",
+                  "type": "file",
+                  "size": 5
+                },
+                {
+                  "name": "hello copy 4.txt",
+                  "type": "file",
+                  "size": 5
+                },
+                {
+                  "name": "hello copy 5.txt",
+                  "type": "file",
+                  "size": 5
+                },
+                {
+                  "name": "hello copy.txt",
+                  "type": "file",
+                  "size": 5
+                }
+              ]
+            },
+            {
+              "name": "hello copy 3.txt",
+              "type": "file",
+              "size": 5
+            }
+          ]
+        },
+        {
+          "name": "hello.txt",
+          "type": "file",
+          "size": 5
+        },
+        {
+          "name": "num_pi.txt",
+          "type": "file",
+          "size": 1078
+        },
+        {
+          "name": "test-tree2",
+          "type": "dir",
+          "size": 3283,
+          "children": [
+            {
+              "name": "folder3",
+              "type": "dir",
+              "size": 22,
+              "children": [
+                {
+                  "name": "file3.txt",
+                  "type": "file",
+                  "size": 22
+                }
+              ]
+            },
+            {
+              "name": "folder3 copy",
+              "type": "dir",
+              "size": 22,
+              "children": [
+                {
+                  "name": "file3.txt",
+                  "type": "file",
+                  "size": 22
+                }
+              ]
+            },
+            {
+              "name": "hello.txt",
+              "type": "file",
+              "size": 5
+            },
+            {
+              "name": "num_pi copy 2.txt",
+              "type": "file",
+              "size": 1078
+            },
+            {
+              "name": "num_pi copy.txt",
+              "type": "file",
+              "size": 1078
+            },
+            {
+              "name": "num_pi.txt",
+              "type": "file",
+              "size": 1078
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

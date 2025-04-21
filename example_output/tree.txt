@@ -1,0 +1,37 @@
+Snapshot created at: 2025-04-21T21-54-04.704Z
+==================================================
+
+(  31.1KB) ├───ROOT
+(   0.0B ) │   ├───.git
+(   0.0B ) │   │   └───Directory skipped
+(  39.0B ) │   ├───.gitignore
+(   0.0B ) │   ├───folder_history
+(   0.0B ) │   │   └───Directory skipped
+(   5.8KB) │   ├───index.js
+(   0.0B ) │   ├───node_modules
+(   0.0B ) │   │   └───Directory skipped
+(  20.1KB) │   ├───package-lock.json
+( 427.0B ) │   ├───package.json
+( 502.0B ) │   ├───README.md
+(   4.3KB) │   └───test-tree
+(   0.0B ) │   │   ├───.git
+(   0.0B ) │   │   │   └───Directory skipped
+(  30.0B ) │   │   ├───folder4
+(  25.0B ) │   │   │   ├───folder5
+(   5.0B ) │   │   │   │   ├───hello copy 2.txt
+(   5.0B ) │   │   │   │   ├───hello copy 3.txt
+(   5.0B ) │   │   │   │   ├───hello copy 4.txt
+(   5.0B ) │   │   │   │   ├───hello copy 5.txt
+(   5.0B ) │   │   │   │   └───hello copy.txt
+(   5.0B ) │   │   │   └───hello copy 3.txt
+(   5.0B ) │   │   ├───hello.txt
+(   1.1KB) │   │   ├───num_pi.txt
+(   3.2KB) │   │   └───test-tree2
+(  22.0B ) │   │   │   ├───folder3
+(  22.0B ) │   │   │   │   └───file3.txt
+(  22.0B ) │   │   │   ├───folder3 copy
+(  22.0B ) │   │   │   │   └───file3.txt
+(   5.0B ) │   │   │   ├───hello.txt
+(   1.1KB) │   │   │   ├───num_pi copy 2.txt
+(   1.1KB) │   │   │   ├───num_pi copy.txt
+(   1.1KB) │   │   │   └───num_pi.txt
