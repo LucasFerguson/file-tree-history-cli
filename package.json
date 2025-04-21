@@ -1,0 +1,20 @@
+{
+  "name": "cryptography-cli",
+  "description": "Setup:\r `npm install pg chalk figlet`",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lucas Ferguson",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "figlet": "^1.8.0",
+    "inquirer": "^12.4.2"
+  },
+  "bin": {
+    "historytree": "index.js"
+  }
+}
