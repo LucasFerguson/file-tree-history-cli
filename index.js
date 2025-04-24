@@ -29,7 +29,7 @@ async function showMainMenu() {
 		console.log(chalk.green('Snapshot created!'));
 
 	} else if (operation === 'Init History') {
-		initHistory();
+		await initHistory();
 		console.log(chalk.green('History initialized!'));
 	}
 
@@ -241,7 +241,7 @@ async function snapshot() {
 	}
 }
 
-function initHistory() {
+async function initHistory() {
 	try {
 		// Check if folder_history directory exists
 		if (!fs.existsSync('folder_history')) {
@@ -258,6 +258,39 @@ function initHistory() {
 
 		// Initialize git repository in folder_history directory
 		execSync('git init folder_history', { stdio: 'inherit' });
+
+		console.log(chalk.blue('Attempting to make initial commit...'));
+		try {
+			process.chdir('folder_history');
+			execSync('git add .', { stdio: 'inherit' });
+			execSync('git commit -m "Initial commit"', { stdio: 'inherit' });
+			process.chdir('..');
+		} catch (error) {
+			console.log(chalk.yellow('Failed to make initial commit.'));
+			console.log(chalk.gray('Error details:', error.message));
+			console.log(chalk.gray('\nCommon causes:'));
+			console.log(chalk.gray('1. Git repository ownership/permission issues'));
+			console.log(chalk.gray('2. Git user/email not configured'));
+			console.log(chalk.gray('3. Network or access restrictions'));
+
+			const { shouldConfigure } = await inquirer.prompt({
+				type: 'confirm',
+				name: 'shouldConfigure',
+				message: 'Would you like to try fixing Git directory permissions by adding the directory\'s path to Git\'s "safe directory" list. This tells Git to ignore ownership checks for that specific directory?',
+				default: true
+			});
+
+			if (shouldConfigure) {
+				console.log(chalk.blue('Running command: git config --global --add safe.directory "*"'));
+				execSync('git config --global --add safe.directory "*"', { stdio: 'inherit' });
+
+				console.log(chalk.blue('Running command: git -C folder_history config core.fileMode false'));
+				execSync('git -C folder_history config core.fileMode false', { stdio: 'inherit' });
+
+				console.log(chalk.green('Git configured successfully! Repository permissions updated.'));
+			}
+		}
+
 		console.log(chalk.green('Git repository initialized in folder_history!'));
 	} catch (error) {
 		console.error(chalk.red('Error initializing history:'), error.message);
