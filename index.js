@@ -25,7 +25,7 @@ async function showMainMenu() {
 		process.exit(0)
 
 	} else if (operation === 'Snapshot Current Directory') {
-		snapshot();
+		await snapshot();
 		console.log(chalk.green('Snapshot created!'));
 
 	} else if (operation === 'Init History') {
@@ -54,17 +54,43 @@ showMainMenu().catch(error => {
 	console.error(chalk.red('Fatal error:'), error);
 });
 
-function snapshot() {
+async function snapshot() {
 	try {
 		const timestamp = new Date().toISOString().replace(/[:]/g, '-');
 		const header = `Snapshot created at: ${timestamp}\n${'='.repeat(50)}\n\n`;
 
-		// Create folder_history and snapshots if they don't exist
+		// Check if folder_history exists, if not prompt for initialization
 		if (!fs.existsSync('folder_history')) {
-			fs.mkdirSync('folder_history');
+			const { shouldInit } = await inquirer.prompt({
+				type: 'confirm',
+				name: 'shouldInit',
+				message: 'Directory is not initialized. Would you like to initialize it now?',
+				default: true
+			});
+
+			if (shouldInit) {
+				initHistory();
+			} else {
+				console.log(chalk.yellow('Snapshot cancelled. Please initialize directory first.'));
+				return;
+			}
 		}
+
+		// Check for required directory structure and files
 		if (!fs.existsSync('folder_history/snapshots')) {
-			fs.mkdirSync('folder_history/snapshots');
+			console.error(chalk.red('Error: snapshots directory is missing. Please re-initialize.'));
+			return;
+		}
+
+		if (!fs.existsSync('folder_history/.gitignore')) {
+			console.error(chalk.red('Error: .gitignore is missing. Please re-initialize.'));
+			return;
+		}
+
+		const gitignoreContent = fs.readFileSync('folder_history/.gitignore', 'utf8');
+		if (!gitignoreContent.includes('snapshots/')) {
+			console.error(chalk.red('Error: .gitignore is invalid. Please re-initialize.'));
+			return;
 		}
 
 		function buildTreeJson(dir) {
@@ -196,6 +222,11 @@ function initHistory() {
 
 		// Create .gitignore file to ignore snapshots folder
 		fs.writeFileSync('folder_history/.gitignore', 'snapshots/');
+
+		// Create snapshots directory if it doesn't exist
+		if (!fs.existsSync('folder_history/snapshots')) {
+			fs.mkdirSync('folder_history/snapshots');
+		}
 
 		// Initialize git repository in folder_history directory
 		execSync('git init folder_history', { stdio: 'inherit' });
