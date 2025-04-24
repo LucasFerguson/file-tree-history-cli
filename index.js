@@ -95,13 +95,41 @@ async function snapshot() {
 
 		function buildTreeJson(dir) {
 			let tree = { name: dir.split('/').pop(), type: 'dir', size: 0, children: [] };
-			const items = fs.readdirSync(dir);
+			let items;
 
-			items.forEach(item => {
+			try {
+				items = fs.readdirSync(dir);
+			} catch (error) {
+				console.error(chalk.yellow(`Warning: Could not read directory ${dir}: ${error.message}`));
+				return {
+					name: dir.split('/').pop(),
+					type: 'dir',
+					size: 0,
+					children: [{
+						name: "Access denied",
+						type: 'file',
+						size: 0
+					}]
+				};
+			}
+
+			for (const item of items) {
 				const path = `${dir}/${item}`;
-				const stats = fs.statSync(path);
-				// Include folder name but skip contents for specific directories
-				if (item === 'node_modules' || item === 'folder_history' || item === '.git') {
+				let stats;
+
+				try {
+					stats = fs.statSync(path);
+				} catch (error) {
+					console.error(chalk.yellow(`Warning: Could not access ${path}: ${error.message}`));
+					tree.children.push({
+						name: `${item} (inaccessible)`,
+						type: 'file',
+						size: 0
+					});
+					continue;
+				}
+
+				if (item === 'node_modules' || item === 'folder_history' || item === '.git' || item === 'venv' || item === '__pycache__' || item === 'venv-ubuntu' || item === 'android') {
 					tree.children.push({
 						name: item,
 						type: 'dir',
@@ -112,11 +140,11 @@ async function snapshot() {
 							size: 0
 						}]
 					});
-					return;
+					continue;
 				}
 
 				if (stats.isDirectory()) {
-					const subtree = buildTreeJson(path); // Recursive call
+					const subtree = buildTreeJson(path);
 					tree.size += subtree.size;
 					tree.children.push(subtree);
 				} else {
@@ -127,7 +155,7 @@ async function snapshot() {
 					});
 					tree.size += stats.size;
 				}
-			});
+			}
 
 			return tree;
 		}
