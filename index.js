@@ -194,6 +194,9 @@ function initHistory() {
 			fs.mkdirSync('folder_history');
 		}
 
+		// Create .gitignore file to ignore snapshots folder
+		fs.writeFileSync('folder_history/.gitignore', 'snapshots/');
+
 		// Initialize git repository in folder_history directory
 		execSync('git init folder_history', { stdio: 'inherit' });
 		console.log(chalk.green('Git repository initialized in folder_history!'));
