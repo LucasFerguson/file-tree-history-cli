@@ -18,7 +18,7 @@ async function showMainMenu() {
 		type: 'list',
 		name: 'operation',
 		message: 'Choose operation:',
-		choices: ['Snapshot Current Directory', 'Init History', 'Exit']
+		choices: ['Snapshot Current Directory', 'Init History', 'History Stats', 'Exit']
 	});
 
 	if (operation === 'Exit') {
@@ -26,11 +26,14 @@ async function showMainMenu() {
 
 	} else if (operation === 'Snapshot Current Directory') {
 		await snapshot();
-		console.log(chalk.green('Snapshot created!'));
+		console.log(chalk.green('Snapshot created! Function snapshot() finished executing'));
 
 	} else if (operation === 'Init History') {
 		await initHistory();
-		console.log(chalk.green('History initialized!'));
+		console.log(chalk.green('History initialized! Function initHistory() finished executing'));
+	} else if (operation === 'History Stats') {
+		await historyStats();
+		console.log(chalk.green('History stats displayed! Function historyStats() finished executing'));
 	}
 
 	// console.log(chalk.yellow('\nAlgorithm:'), algorithm);
@@ -91,85 +94,6 @@ async function snapshot() {
 		if (!gitignoreContent.includes('snapshots/')) {
 			console.error(chalk.red('Error: .gitignore is invalid. Please re-initialize.'));
 			return;
-		}
-
-		function buildTreeJson(dir) {
-			let tree = { name: dir.split('/').pop(), type: 'dir', size: 0, children: [] };
-			let items;
-
-			try {
-				items = fs.readdirSync(dir);
-			} catch (error) {
-				console.error(chalk.yellow(`Warning: Could not read directory ${dir}: ${error.message}`));
-				return {
-					name: dir.split('/').pop(),
-					type: 'dir',
-					size: 0,
-					children: [{
-						name: "Access denied",
-						type: 'file',
-						size: 0
-					}]
-				};
-			}
-
-			for (const item of items) {
-				const path = `${dir}/${item}`;
-				let stats;
-
-				try {
-					stats = fs.statSync(path);
-				} catch (error) {
-					console.error(chalk.yellow(`Warning: Could not access ${path}: ${error.message}`));
-					tree.children.push({
-						name: `${item} (inaccessible)`,
-						type: 'file',
-						size: 0
-					});
-					continue;
-				}
-
-				if (item === 'node_modules' || item === 'folder_history' || item === '.git' || item === 'venv' || item === '__pycache__' || item === 'venv-ubuntu' || item === 'android') {
-					tree.children.push({
-						name: item,
-						type: 'dir',
-						size: 0,
-						children: [{
-							name: "Directory skipped",
-							type: 'file',
-							size: 0
-						}]
-					});
-					continue;
-				}
-
-				if (stats.isDirectory()) {
-					const subtree = buildTreeJson(path);
-					tree.size += subtree.size;
-					tree.children.push(subtree);
-				} else {
-					tree.children.push({
-						name: item,
-						type: 'file',
-						size: stats.size
-					});
-					tree.size += stats.size;
-				}
-			}
-
-			return tree;
-		}
-
-		function formatSize(bytes) {
-			const units = ['B', 'KB', 'MB', 'GB'];
-			let size = bytes;
-			let unitIndex = 0;
-			while (size >= 1024 && unitIndex < units.length - 1) {
-				size /= 1024;
-				unitIndex++;
-			}
-			// Format to 8 characters total: 6 for number (including decimal) and 2 for unit
-			return `${size.toFixed(1).padStart(6)}${units[unitIndex].padEnd(2)}`;
 		}
 
 		// Converts a tree node structure into a string representation
@@ -241,6 +165,87 @@ async function snapshot() {
 	}
 }
 
+// Helper functions for snapshot
+function buildTreeJson(dir) {
+	let tree = { name: dir.split('/').pop(), type: 'dir', size: 0, children: [] };
+	let items;
+
+	try {
+		items = fs.readdirSync(dir);
+	} catch (error) {
+		console.error(chalk.yellow(`Warning: Could not read directory ${dir}: ${error.message}`));
+		return {
+			name: dir.split('/').pop(),
+			type: 'dir',
+			size: 0,
+			children: [{
+				name: "Access denied",
+				type: 'file',
+				size: 0
+			}]
+		};
+	}
+
+	for (const item of items) {
+		const path = `${dir}/${item}`;
+		let stats;
+
+		try {
+			stats = fs.statSync(path);
+		} catch (error) {
+			console.error(chalk.yellow(`Warning: Could not access ${path}: ${error.message}`));
+			tree.children.push({
+				name: `${item} (inaccessible)`,
+				type: 'file',
+				size: 0
+			});
+			continue;
+		}
+
+		if (item === 'node_modules' || item === 'folder_history' || item === '.git' || item === 'venv' || item === '__pycache__' || item === 'venv-ubuntu' || item === 'android') {
+			tree.children.push({
+				name: item,
+				type: 'dir',
+				size: 0,
+				children: [{
+					name: "Directory skipped",
+					type: 'file',
+					size: 0
+				}]
+			});
+			continue;
+		}
+
+		if (stats.isDirectory()) {
+			const subtree = buildTreeJson(path);
+			tree.size += subtree.size;
+			tree.children.push(subtree);
+		} else {
+			tree.children.push({
+				name: item,
+				type: 'file',
+				size: stats.size
+			});
+			tree.size += stats.size;
+		}
+	}
+
+	return tree;
+}
+
+// Helper functions for snapshot
+function formatSize(bytes) {
+	const units = ['B', 'KB', 'MB', 'GB'];
+	let size = bytes;
+	let unitIndex = 0;
+	while (size >= 1024 && unitIndex < units.length - 1) {
+		size /= 1024;
+		unitIndex++;
+	}
+	// Format to 8 characters total: 6 for number (including decimal) and 2 for unit
+	return `${size.toFixed(1).padStart(6)}${units[unitIndex].padEnd(2)}`;
+}
+
 async function initHistory() {
 	try {
 		// Check if folder_history directory exists
@@ -295,4 +300,23 @@ async function initHistory() {
 	} catch (error) {
 		console.error(chalk.red('Error initializing history:'), error.message);
 	}
+}
+
+// Function to display history statistics
+async function historyStats() {
+	console.log(chalk.blue('History statistics:'));
+	// Add your logic to display history statistics here
+	// For example, you can read the folder_history directory and count the number of snapshots
+	const snapshotFiles = fs.readdirSync('folder_history/snapshots').filter(file => file.endsWith('.txt'));
+	console.log(chalk.green(`Total # of snapshots: ${snapshotFiles.length}`));
+	// Read the current tree.json
+	try {
+		const currentTree = JSON.parse(
+			fs.readFileSync('folder_history/tree.json', 'utf8')
+		);
+		console.log(chalk.gray('Directory size:'), formatSize(currentTree.size));
+	} catch (error) {
+		console.log(chalk.yellow('No current tree data found'));
+	}
+
 }
