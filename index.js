@@ -96,36 +96,6 @@ async function snapshot() {
 			return;
 		}
 
-		// Converts a tree node structure into a string representation
-		function treeToString(node, prefix = '', isLast) {
-			// Initialize array to store tree lines
-			let output = [];
-			// Format the size of current node (file/directory)
-			const nodeSize = formatSize(node.size);
-			let itemPrefix = isLast ? '└───' : '├───';
-
-			if (node.type === 'dir') {
-				// For directories: show name and total size
-				// Special case: rename '.' to 'ROOT' for the root directory
-				output.push(`(${nodeSize}) ${prefix}${itemPrefix}${node.name === '.' ? 'ROOT' : node.name}`);
-
-				// Process each child in the directory
-				node.children.forEach((child, index) => {
-					// Create indentation for child items
-					// You can modify these symbols to use different characters
-					const childPrefix = prefix + "│   "; // (isLast ? '    └───' : '    ├───')
-					// Recursively process child nodes
-					const isLast = index === node.children.length - 1;
-					output = output.concat(treeToString(child, childPrefix, isLast));
-				});
-			} else {
-				// For files: show filename and size
-				output.push(`(${nodeSize}) ${prefix}${itemPrefix}${node.name}`);
-			}
-
-			return output;
-		}
-
 		// Build tree structure
 		const treeJson = buildTreeJson('.');
 		const treeContent = treeToString(treeJson);
@@ -164,6 +134,39 @@ async function snapshot() {
 		console.error(chalk.red('Error creating snapshot:'), error.message);
 	}
 }
+
+// Converts a tree node structure into a string representation
+function treeToString(node, prefix = '', isLast = true, maxDepth = Infinity, currentDepth = 0) {
+	// Initialize array to store tree lines
+	let output = [];
+	// Format the size of current node (file/directory)
+	const nodeSize = formatSize(node.size);
+	let itemPrefix = isLast ? '└───' : '├───';
+
+	if (node.type === 'dir') {
+		// For directories: show name and total size
+		// Special case: rename '.' to 'ROOT' for the root directory
+		output.push(`(${nodeSize}) ${prefix}${itemPrefix}${node.name === '.' ? 'ROOT' : node.name}`);
+
+		// If we haven't reached maxDepth, process children
+		if (currentDepth < maxDepth) {
+			// Process each child in the directory
+			node.children.forEach((child, index) => {
+				// Create indentation for child items
+				const childPrefix = prefix + "│   ";
+				// Recursively process child nodes
+				const isLastChild = index === node.children.length - 1;
+				output = output.concat(treeToString(child, childPrefix, isLastChild, maxDepth, currentDepth + 1));
+			});
+		}
+	} else {
+		// For files: show filename and size
+		output.push(`(${nodeSize}) ${prefix}${itemPrefix}${node.name}`);
+	}
+
+	return output;
+}
+
 
 // Helper functions for snapshot
 function buildTreeJson(dir) {
@@ -318,5 +321,16 @@ async function historyStats() {
 	} catch (error) {
 		console.log(chalk.yellow('No current tree data found'));
 	}
+
+	// Print tree of depth 1
+	const treeJson = JSON.parse(
+		fs.readFileSync('folder_history/tree.json', 'utf8')
+	);
+
+	// sort this layer 1 of the tree by size
+	treeJson.children.sort((a, b) => b.size - a.size);
+
+	console.log(chalk.blue('Current directory tree:'));
+	console.log(treeToString(treeJson, '', true, 1).join('\n'));
 
 }
