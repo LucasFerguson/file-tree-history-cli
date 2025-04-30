@@ -151,13 +151,15 @@ function treeToString(node, prefix = '', isLast = true, maxDepth = Infinity, cur
 		// If we haven't reached maxDepth, process children
 		if (currentDepth < maxDepth) {
 			// Process each child in the directory
-			node.children.forEach((child, index) => {
+			for (let i = 0; i < node.children.length; i++) {
+				const child = node.children[i];
+				// Check if there is a next child
+				const isLastChild = i === node.children.length - 1;
 				// Create indentation for child items
-				const childPrefix = prefix + "│   ";
-				// Recursively process child nodes
-				const isLastChild = index === node.children.length - 1;
+				const childPrefix = prefix + (isLast ? '    ' : '│   ');
+
 				output = output.concat(treeToString(child, childPrefix, isLastChild, maxDepth, currentDepth + 1));
-			});
+			}
 		}
 	} else {
 		// For files: show filename and size
@@ -311,13 +313,13 @@ async function historyStats() {
 	// Add your logic to display history statistics here
 	// For example, you can read the folder_history directory and count the number of snapshots
 	const snapshotFiles = fs.readdirSync('folder_history/snapshots').filter(file => file.endsWith('.txt'));
-	console.log(chalk.green(`Total # of snapshots: ${snapshotFiles.length}`));
+	console.log(chalk.white(`Total # of snapshots: ${snapshotFiles.length}`));
 	// Read the current tree.json
 	try {
 		const currentTree = JSON.parse(
 			fs.readFileSync('folder_history/tree.json', 'utf8')
 		);
-		console.log(chalk.gray('Directory size:'), formatSize(currentTree.size));
+		console.log('Directory size:', formatSize(currentTree.size));
 	} catch (error) {
 		console.log(chalk.yellow('No current tree data found'));
 	}
@@ -330,7 +332,7 @@ async function historyStats() {
 	// sort this layer 1 of the tree by size
 	treeJson.children.sort((a, b) => b.size - a.size);
 
-	console.log(chalk.blue('Current directory tree:'));
+	console.log(chalk.blueBright('Current directory tree sorted:'));
 	console.log(treeToString(treeJson, '', true, 1).join('\n'));
 
 }
