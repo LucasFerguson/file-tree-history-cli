@@ -24,9 +24,12 @@
 
 **4. Road Map**
 - Add more features like:
-  - Customizable history depth
-  - Add option to not commit the changes to git
-  - CLI flags to control behavior 
+  - [x] Customizable history depth
+  - [ ] Global config file to store list of all tracked directories on a device
+  - [ ] 
+  - [ ] Add option to not commit the changes to git
+  - [ ] CLI flags to control behavior 
+    - [ ] Add CLI option to configure skipped directories (e.g., `node_modules`)
     - `--no-git` to skip git commit
     - `--depth` to specify history depth
     - `--format` to specify export format (e.g., JSON, XML)
@@ -34,5 +37,7 @@
     - `--help` for usage instructions
     - `--version` to check the version of the tool
     - `--verbose` for detailed output
-  - Support for more export file formats (ex: XML)
-  - Improved error handling and user feedback
+  - [ ] Support for more export file formats (ex: XML)
+  - [ ] Improved error handling and user feedback
+
+
