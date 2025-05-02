@@ -4,7 +4,10 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import inquirer from 'inquirer';
 import { execSync } from 'child_process';
+import { Worker } from 'worker_threads';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 async function showMainMenu() {
 	console.log(chalk.green(
@@ -96,9 +99,47 @@ async function snapshot() {
 			return;
 		}
 
-		// Build tree structure
-		const treeJson = buildTreeJson('.');
-		const treeContent = treeToString(treeJson);
+		console.log(chalk.blue('Building tree structure... Press Ctrl+C to cancel.'));
+		// Start Directory Scanner - Build tree structure
+		// const treeJson = buildTreeJson('.');
+		let dir = '.'; // Default to current directory
+		const __filename = fileURLToPath(import.meta.url);
+		const __dirname = dirname(__filename);
+		const workerPath = join(__dirname, 'scanner-worker.js');
+
+		const worker = new Worker(workerPath, { workerData: { dir } });
+
+		worker.on('message', (msg) => {
+			switch (msg.status) {
+				case 'start':
+					console.log(`Scanning ${msg.dir}...`);
+					break;
+				case 'progress': // Add progress events to scanner
+					console.log(`Scanned ${msg.currentItem} (${msg.percent}%)`);
+					break;
+				case 'complete':
+					console.log('Done!');
+					// Use msg.tree
+					break;
+				case 'error':
+					console.error(`Failed: ${msg.error}`);
+					break;
+			}
+		});
+		// await worker finished
+		const { tree } = await new Promise((resolve, reject) => {
+			worker.on('message', (msg) => {
+				if (msg.status === 'complete') {
+					resolve(msg);
+				} else if (msg.status === 'error') {
+					reject(new Error(msg.error));
+				}
+			});
+		});
+
+		console.log("treeJson = ", tree);
+
+		const treeContent = treeToString(tree);
 
 		console.log(chalk.blue('Tree structure created!'));
 		console.log(chalk.blue('Writing files...'));
@@ -110,7 +151,7 @@ async function snapshot() {
 
 		fs.writeFileSync(
 			`folder_history/snapshots/tree_snapshot_${timestamp}.json`,
-			JSON.stringify(treeJson, null, 2)
+			JSON.stringify(tree, null, 2)
 		);
 
 		// Write files in folder_history directory
@@ -121,7 +162,7 @@ async function snapshot() {
 
 		fs.writeFileSync(
 			`folder_history/tree.json`,
-			JSON.stringify(treeJson, null, 2)
+			JSON.stringify(tree, null, 2)
 		);
 
 		// Add and commit changes to git repository
@@ -170,73 +211,6 @@ function treeToString(node, prefix = '', isLast = true, maxDepth = Infinity, cur
 }
 
 
-// Helper functions for snapshot
-function buildTreeJson(dir) {
-	let tree = { name: dir.split('/').pop(), type: 'dir', size: 0, children: [] };
-	let items;
-
-	try {
-		items = fs.readdirSync(dir);
-	} catch (error) {
-		console.error(chalk.yellow(`Warning: Could not read directory ${dir}: ${error.message}`));
-		return {
-			name: dir.split('/').pop(),
-			type: 'dir',
-			size: 0,
-			children: [{
-				name: "Access denied",
-				type: 'file',
-				size: 0
-			}]
-		};
-	}
-
-	for (const item of items) {
-		const path = `${dir}/${item}`;
-		let stats;
-
-		try {
-			stats = fs.statSync(path);
-		} catch (error) {
-			console.error(chalk.yellow(`Warning: Could not access ${path}: ${error.message}`));
-			tree.children.push({
-				name: `${item} (inaccessible)`,
-				type: 'file',
-				size: 0
-			});
-			continue;
-		}
-
-		if (item === 'node_modules' || item === 'folder_history' || item === '.git' || item === 'venv' || item === '__pycache__' || item === 'venv-ubuntu' || item === 'android') {
-			tree.children.push({
-				name: item,
-				type: 'dir',
-				size: 0,
-				children: [{
-					name: "Directory skipped",
-					type: 'file',
-					size: 0
-				}]
-			});
-			continue;
-		}
-
-		if (stats.isDirectory()) {
-			const subtree = buildTreeJson(path);
-			tree.size += subtree.size;
-			tree.children.push(subtree);
-		} else {
-			tree.children.push({
-				name: item,
-				type: 'file',
-				size: stats.size
-			});
-			tree.size += stats.size;
-		}
-	}
-
-	return tree;
-}
 
 // Helper functions for snapshot
 function formatSize(bytes) {
