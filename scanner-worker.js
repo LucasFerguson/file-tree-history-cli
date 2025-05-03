@@ -77,7 +77,11 @@ function buildTreeJson(dir) {
 		}
 	}
 
-	return tree;
+	// Directory done
+	const currentItem = dir.split('/').pop();
+	const percent = Math.floor(Math.random() * 100); // This is a placeholder. For real progress, you'd need to track total files/directories
+	parentPort.postMessage({ status: 'progress', currentItem, percent });
+
 	return tree;
 }
 
