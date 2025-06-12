@@ -26,7 +26,7 @@
 - Add more features like:
   - [x] Customizable history depth
   - [ ] Global config file to store list of all tracked directories on a device
-  - [ ] 
+  - [ ] Create an info file with the full path of the directory on the host system 
   - [ ] Add option to not commit the changes to git
   - [ ] CLI flags to control behavior 
     - [ ] Add CLI option to configure skipped directories (e.g., `node_modules`)
