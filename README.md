@@ -20,6 +20,14 @@
 
 **Snapshot Current Directory**
 
+```
+Final JSON info + tree 
+{
+	info: ... , 
+	tree: ...
+}
+```
+
 **Init History**
 
 **4. Road Map**

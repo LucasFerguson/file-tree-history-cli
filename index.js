@@ -63,8 +63,7 @@ showMainMenu().catch(error => {
 async function snapshot() {
 	try {
 		const timestamp = new Date().toISOString().replace(/[:]/g, '-');
-		const header = `Snapshot created at: ${timestamp}\n${'='.repeat(50)}\n\n`;
-
+		
 		// Check if folder_history exists, if not prompt for initialization
 		if (!fs.existsSync('folder_history')) {
 			const { shouldInit } = await inquirer.prompt({
@@ -143,6 +142,24 @@ async function snapshot() {
 
 		console.log(chalk.blue('Tree structure created!'));
 		console.log(chalk.blue('Writing files...'));
+		
+		// Final JSON info + tree 
+		// {
+		// 	info: ... , 
+		// 	tree: ...
+		// }
+
+		let header = `Snapshot created at: ${timestamp}\n${'='.repeat(50)}\n\n`;
+		let currentDirectory = process.cwd()
+		header += `Current Directory: ${currentDirectory}\n`;
+
+		let finalJson = {
+			info: {
+				currentDirectory: currentDirectory
+			},
+			tree: tree,
+		}
+
 		// Write files in folder_history directory
 		fs.writeFileSync(
 			`folder_history/snapshots/tree_snapshot_${timestamp}.txt`,
@@ -151,7 +168,7 @@ async function snapshot() {
 
 		fs.writeFileSync(
 			`folder_history/snapshots/tree_snapshot_${timestamp}.json`,
-			JSON.stringify(tree, null, 2)
+			JSON.stringify(finalJson, null, 2)
 		);
 
 		// Write files in folder_history directory
@@ -162,7 +179,7 @@ async function snapshot() {
 
 		fs.writeFileSync(
 			`folder_history/tree.json`,
-			JSON.stringify(tree, null, 2)
+			JSON.stringify(finalJson, null, 2)
 		);
 
 		// Add and commit changes to git repository
@@ -289,24 +306,29 @@ async function historyStats() {
 	const snapshotFiles = fs.readdirSync('folder_history/snapshots').filter(file => file.endsWith('.txt'));
 	console.log(chalk.white(`Total # of snapshots: ${snapshotFiles.length}`));
 	// Read the current tree.json
+
+	let currentJSON;
+	let currentTree;
+	let currentInfo;
+
 	try {
-		const currentTree = JSON.parse(
+		currentJSON = JSON.parse(
 			fs.readFileSync('folder_history/tree.json', 'utf8')
 		);
+
+		currentTree = currentJSON.tree;
+		currentInfo = currentJSON.info;
+
 		console.log('Directory size:', formatSize(currentTree.size));
+
+		// sort this layer 1 of the tree by size
+		currentTree.children.sort((a, b) => b.size - a.size);
+
+		console.log(chalk.blueBright('Current directory tree sorted:'));
+		console.log(treeToString(currentTree, '', true, 1).join('\n'));
+
 	} catch (error) {
 		console.log(chalk.yellow('No current tree data found'));
 	}
-
-	// Print tree of depth 1
-	const treeJson = JSON.parse(
-		fs.readFileSync('folder_history/tree.json', 'utf8')
-	);
-
-	// sort this layer 1 of the tree by size
-	treeJson.children.sort((a, b) => b.size - a.size);
-
-	console.log(chalk.blueBright('Current directory tree sorted:'));
-	console.log(treeToString(treeJson, '', true, 1).join('\n'));
 
 }
